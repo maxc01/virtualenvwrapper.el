@@ -170,20 +170,6 @@ specified."
       (error "Some virtualenvs have the same name!"))
     candidates))
 
-(defun venv-get-candidates-list (list)
-  "Given LIST of virtualenv directories,
-return a list of names that can be used in, e.g.
-a completing read. This trusts the caller to only
-pass directories with are actually virtualenvs."
-   (-map (lambda (dir)
-           (car (last (-filter (lambda (s) (not (s-blank? s)))
-                               (s-split "/" dir)))))
-         (-filter
-          (lambda (s) (car (file-attributes
-                            (concat (file-name-as-directory
-                                     (expand-file-name s)) venv-executables-dir))))
-                  list)))
-
 (defun venv-get-candidates-dir (dir)
   "Given a directory DIR containing virtualenvs, return a list
 of names that can be used in the completing read."
@@ -193,6 +179,11 @@ of names that can be used in the completing read."
                  (car (file-attributes
                        (concat (file-name-as-directory subdir) venv-executables-dir)))))
              (directory-files proper-dir nil "^[^.]"))))
+
+(defun venv-get-candidates-list (list)
+  "Given a LIST of virtualenvs directories,
+return a list of names that can be used in the completing read."
+  (mapcan 'venv-get-candidates-dir list))
 
 (defun venv-get-stripped-path (path)
   "Return what the PATH would look like if we weren't in a
