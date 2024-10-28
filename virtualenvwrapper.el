@@ -144,10 +144,13 @@ to the directory where that virtualenv is located."
           (if (stringp venv-location)
               (concat (file-name-as-directory
                        (expand-file-name venv-location)) name)
-            (car (-filter
-                  (lambda (d)
-                    (s-equals? name (venv-dir-to-name d)))
-                  venv-location)))))
+            (let ((root (car (-filter
+                              (lambda (d)
+                                (file-directory-p (concat
+                                                   (file-name-as-directory d)
+                                                   name)))
+                              venv-location))))
+              (concat (file-name-as-directory root) name)))))
      (if (and potential-dir
               (file-exists-p
                (concat (file-name-as-directory
