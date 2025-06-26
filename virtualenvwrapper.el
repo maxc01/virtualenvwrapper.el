@@ -568,5 +568,23 @@ virtualenvwrapper.el."
                             "cdvirtualenv" "cpvirtualenv"))
   (message "Eshell virtualenv support initialized."))
 
+;;;###autoload
+(defun venv-project-auto-workon ()
+  "If a venv in the project root exists, activates it.
+Set your common venvs names in `venv-dirlookup-names'"
+  (interactive)
+  (when (project-current)
+    (let* ((pr (project-current))
+           (root (project-root pr))
+           (project-name (file-name-nondirectory (directory-file-name root)))
+           (venv-path (--first
+                       (file-exists-p it)
+                       (--map (concat root it)
+                              venv-dirlookup-names))))
+      (when venv-path
+        (setq venv-current-name project-name)
+        (venv--activate-dir venv-path)
+        (message "Found virtualenv in current project root.")))))
+
 (provide 'virtualenvwrapper)
 ;;; virtualenvwrapper.el ends here
